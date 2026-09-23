@@ -1,0 +1,719 @@
+/* ============================================================
+   MedMinder v3 — Shared Stylesheet
+============================================================ */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ── Light theme variables ── */
+:root {
+  --bg:        #f0f2f8;
+  --surface:   #ffffff;
+  --border:    #e2e6f0;
+  --border2:   #c8cfe0;
+  --accent:    #4f6ef7;
+  --accent-h:  #3a57e8;
+  --accent-bg: #eef1fe;
+  --green:     #10b981;
+  --green-bg:  #d1fae5;
+  --red:       #ef4444;
+  --red-bg:    #fee2e2;
+  --yellow:    #f59e0b;
+  --yellow-bg: #fef3c7;
+  --purple:    #8b5cf6;
+  --purple-bg: #ede9fe;
+  --blue:      #3b82f6;
+  --blue-bg:   #dbeafe;
+  --cyan:      #06b6d4;
+  --cyan-bg:   #cffafe;
+  --text:      #1a1f36;
+  --text2:     #4a5070;
+  --muted:     #8892b0;
+  --radius:    12px;
+  --radius-lg: 18px;
+  --sans:      'Plus Jakarta Sans', sans-serif;
+  --mono:      'JetBrains Mono', monospace;
+  --shadow:    0 1px 3px rgba(30,40,80,.06), 0 4px 16px rgba(30,40,80,.07);
+  --shadow-md: 0 4px 8px rgba(30,40,80,.08), 0 12px 32px rgba(30,40,80,.1);
+  --shadow-lg: 0 8px 16px rgba(30,40,80,.1),  0 24px 56px rgba(30,40,80,.12);
+  --skel-base: #e8ecf5;
+  --skel-shin: #f3f5fb;
+  --nav-blur:  blur(12px);
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+
+/* ── Dark theme overrides ── */
+body.dark {
+  --bg:        #0f172a;
+  --surface:   #1e293b;
+  --border:    #2d3a52;
+  --border2:   #3d4f6e;
+  --accent:    #6284ff;
+  --accent-h:  #7c9aff;
+  --accent-bg: #1e2a4a;
+  --green:     #34d399;
+  --green-bg:  #064e3b;
+  --red:       #f87171;
+  --red-bg:    #450a0a;
+  --yellow:    #fbbf24;
+  --yellow-bg: #451a03;
+  --purple:    #a78bfa;
+  --purple-bg: #2e1065;
+  --blue:      #60a5fa;
+  --blue-bg:   #1e3a5f;
+  --cyan:      #22d3ee;
+  --cyan-bg:   #0c3444;
+  --text:      #e2e8f0;
+  --text2:     #94a3b8;
+  --muted:     #64748b;
+  --shadow:    0 1px 3px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.25);
+  --shadow-md: 0 4px 8px rgba(0,0,0,.35), 0 12px 32px rgba(0,0,0,.3);
+  --shadow-lg: 0 8px 16px rgba(0,0,0,.4),  0 24px 56px rgba(0,0,0,.35);
+  --skel-base: #1e293b;
+  --skel-shin: #2d3a52;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); min-height: 100vh; display: flex; flex-direction: column; transition: background var(--transition), color var(--transition); }
+a { text-decoration: none; color: inherit; }
+button { font-family: var(--sans); }
+
+/* ── Skeleton loading ── */
+.skeleton {
+  height: 72px;
+  background: linear-gradient(90deg, var(--skel-base) 25%, var(--skel-shin) 50%, var(--skel-base) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.skeleton.sk-sm { height: 44px; }
+.skeleton.sk-lg { height: 96px; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── Polish: skeleton fade-in on appearance ──────────────────────
+ * Skeletons animate in rather than snapping — reduces jarring flash
+ * when the loading state first renders. opacity 0→1 over 0.3s.
+ * Uses the same cubic-bezier as --transition for visual consistency.
+ * ---------------------------------------------------------------- */
+.skeleton {
+  animation: shimmer 1.4s infinite, skeletonFadeIn 0.3s cubic-bezier(.4,0,.2,1) both;
+}
+@keyframes skeletonFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Navbar ── */
+.navbar {
+  background: rgba(255,255,255,.85);
+  backdrop-filter: var(--nav-blur);
+  -webkit-backdrop-filter: var(--nav-blur);
+  border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  transition: background var(--transition);
+}
+body.dark .navbar { background: rgba(15,23,42,.85); }
+.nav-inner {
+  max-width: 1040px; margin: 0 auto;
+  padding: 0 24px;
+  display: flex; align-items: center; gap: 4px;
+  height: 62px;
+}
+.nav-brand {
+  font-size: 1.1rem; font-weight: 800; letter-spacing: -.03em;
+  margin-right: 12px; display: flex; align-items: center; gap: 8px;
+  white-space: nowrap;
+}
+.nav-brand .dot { color: var(--accent); }
+.nav-brand .badge {
+  font-size: 9px; font-weight: 700;
+  background: var(--accent-bg); color: var(--accent);
+  padding: 2px 6px; border-radius: 100px; letter-spacing: .06em;
+}
+.nav-link {
+  font-size: 13px; font-weight: 600; color: var(--text2);
+  padding: 7px 13px; border-radius: 8px;
+  transition: all var(--transition);
+  display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+.nav-link:hover { background: var(--accent-bg); color: var(--accent); }
+.nav-link.active { background: var(--accent); color: #fff; }
+.nav-link.active:hover { background: var(--accent-h); }
+.nav-spacer { flex: 1; }
+.nav-date { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-right: 8px; }
+
+/* Theme toggle */
+.btn-theme {
+  width: 36px; height: 36px;
+  background: var(--accent-bg); border: 1.5px solid var(--border);
+  border-radius: 9px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition); color: var(--text);
+}
+.btn-theme:hover { background: var(--accent); border-color: var(--accent); transform: rotate(20deg); }
+
+/* Notif btn */
+.btn-notif {
+  width: 36px; height: 36px;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 9px; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition); position: relative;
+}
+.btn-notif:hover { background: var(--yellow-bg); border-color: var(--yellow); }
+.notif-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px; background: var(--red);
+  border-radius: 50%; border: 2px solid var(--surface);
+  display: none;
+}
+.notif-dot.show { display: block; }
+
+/* ── Page layout ── */
+.page { flex: 1; max-width: 1040px; margin: 0 auto; padding: 32px 24px 80px; width: 100%; }
+
+/* ── Page header ── */
+.page-header h1 { font-size: clamp(1.5rem,4vw,2rem); font-weight: 800; letter-spacing: -.03em; }
+.page-header p  { color: var(--text2); font-size: 14px; margin-top: 4px; }
+.page-header-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 28px; }
+
+/* ── Stat cards ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius-lg); padding: 20px;
+  box-shadow: var(--shadow); position: relative; overflow: hidden;
+  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+}
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.stat-card::after { content:''; position:absolute; bottom:0; left:0; right:0; height:3px; border-radius:0 0 var(--radius-lg) var(--radius-lg); }
+.stat-card.s-blue::after   { background: var(--accent); }
+.stat-card.s-yellow::after { background: var(--yellow); }
+.stat-card.s-green::after  { background: var(--green); }
+.stat-card.s-red::after    { background: var(--red); }
+.stat-icon { font-size: 1.5rem; margin-bottom: 10px; }
+.stat-num { font-size: 2.2rem; font-weight: 800; line-height: 1; letter-spacing: -.05em; }
+.stat-num.c-blue   { color: var(--accent); }
+.stat-num.c-yellow { color: var(--yellow); }
+.stat-num.c-green  { color: var(--green);  }
+.stat-num.c-red    { color: var(--red);    }
+.stat-label { font-size: 12px; color: var(--text2); margin-top: 5px; font-weight: 500; }
+
+/* ── Progress Ring ── */
+.ring-wrap { display: flex; align-items: center; gap: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 20px 24px; box-shadow: var(--shadow); margin-bottom: 24px; }
+.ring-svg { flex-shrink: 0; transform: rotate(-90deg); }
+.ring-bg   { fill: none; stroke: var(--border); stroke-width: 8; }
+.ring-fill { fill: none; stroke-width: 8; stroke-linecap: round; stroke: url(#ring-grad); transition: stroke-dashoffset .8s cubic-bezier(.34,1.56,.64,1); }
+.ring-container { position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.ring-pct-label { font-size: 1.4rem; font-weight: 800; line-height: 1; color: var(--text); }
+.ring-pct-sub   { font-size: 10px; color: var(--muted); margin-top: 2px; font-family: var(--mono); }
+.ring-text-info h3 { font-size: 1rem; font-weight: 700; }
+.ring-text-info p  { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* ── Toolbar ── */
+.toolbar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.toolbar-label { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.chip {
+  font-size: 12px; font-weight: 600; padding: 5px 13px; border-radius: 100px;
+  border: 1.5px solid var(--border); background: var(--surface); color: var(--text2);
+  cursor: pointer; transition: all var(--transition); display: flex; align-items: center; gap: 4px;
+}
+.chip:hover  { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+.chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+.sort-chip {
+  font-family: var(--mono); font-size: 11px; padding: 5px 11px; border-radius: 7px;
+  border: 1.5px solid var(--border); background: var(--surface); color: var(--muted);
+  cursor: pointer; transition: all var(--transition);
+}
+.sort-chip:hover  { color: var(--text); border-color: var(--border2); }
+.sort-chip.active { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+
+/* ── Med cards ── */
+#list { display: flex; flex-direction: column; gap: 10px; }
+.med-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 16px 18px;
+  display: flex; align-items: center; gap: 14px;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease, transform 0.2s ease;
+  animation: slideIn .35s cubic-bezier(.34,1.28,.64,1) both;
+  position: relative; overflow: hidden;
+}
+.med-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:4px 0 0 4px; }
+.med-card.cat-morning::before   { background: var(--yellow); }
+.med-card.cat-afternoon::before { background: var(--blue); }
+.med-card.cat-evening::before   { background: var(--purple); }
+.med-card.cat-night::before     { background: var(--cyan); }
+.med-card.cat-asneeded::before  { background: var(--red); }
+.med-card:hover { transform: scale(1.015) translateY(-2px); box-shadow: var(--shadow-md); border-color: var(--border2); }
+.med-card.done { opacity: .5; }
+.med-card.done .med-name { text-decoration: line-through; color: var(--muted); }
+/* ── Polish: med-card hover — left accent bar grows on hover ─────
+ *
+ * HOW IT WORKS:
+ *   The ::before pseudo-element already provides the 4px colour bar.
+ *   We add a width transition so it expands from 4px → 6px on hover,
+ *   giving a subtle "breathing" effect that draws the eye without
+ *   shifting layout (overflow:hidden on .med-card clips it cleanly).
+ *
+ * WHY NOT translate()?
+ *   The bar is position:absolute on the left edge. Scaling it on the
+ *   X axis from the left origin achieves the same visual with less
+ *   GPU work than a translate + width change combo.
+ * ---------------------------------------------------------------- */
+.med-card::before {
+  transition: width 0.2s cubic-bezier(.4,0,.2,1);
+}
+.med-card:hover::before {
+  width: 6px;
+}
+
+/* ── Polish: card hover — lift shadow intensifies on hover ───────
+ *
+ * TRANSITION LAYERING:
+ *   The existing rule already has  transition: all 0.3s ease.
+ *   We override only box-shadow with a faster ease-out so the
+ *   shadow "snaps in" quicker than the card lifts, creating a
+ *   sense of physical depth — the shadow arrives before the card
+ *   fully rises, mimicking real light behaviour.
+ * ---------------------------------------------------------------- */
+.med-card:hover {
+  box-shadow: 0 8px 28px rgba(79,110,247,.13), 0 2px 8px rgba(30,40,80,.08);
+}
+body.dark .med-card:hover {
+  box-shadow: 0 8px 28px rgba(0,0,0,.45), 0 2px 8px rgba(0,0,0,.3);
+}
+@keyframes slideIn { from{opacity:0;transform:translateY(-12px) scale(.97)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+/* Checkbox */
+.check-box {
+  flex-shrink: 0; width: 24px; height: 24px;
+  border: 2px solid var(--border2); border-radius: 7px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .2s; font-size: 13px; background: var(--bg);
+  color: transparent; user-select: none;
+}
+.check-box:hover { border-color: var(--green); background: var(--green-bg); }
+.check-box.checked { background: var(--green); border-color: var(--green); color: #fff; }
+/* ── Polish: check-box — micro-bounce when checked ───────────────
+ *
+ * :active pseudo-class fires during the mousedown/touchstart
+ * moment. A slight scale-down (0.85) gives tactile "press" feedback
+ * before the JS toggles the .checked class. No JS needed for this —
+ * pure CSS interaction feedback.
+ * ---------------------------------------------------------------- */
+.check-box:active {
+  transform: scale(0.85);
+}
+.check-box.checked {
+  animation: checkBounce 0.3s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes checkBounce {
+  0%   { transform: scale(0.7); }
+  60%  { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+/* Med info */
+.med-info { flex: 1; min-width: 0; }
+.med-name { font-size: .95rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.med-meta { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.tag {
+  font-family: var(--mono); font-size: 10px; font-weight: 500;
+  padding: 2px 7px; border-radius: 5px;
+  display: inline-flex; align-items: center; gap: 3px;
+  text-transform: uppercase; letter-spacing: .05em;
+}
+.tag-time    { background: var(--yellow-bg); color: #92400e; }
+.tag-dose    { background: var(--blue-bg);   color: #1e40af; }
+.tag-cat     { background: var(--purple-bg); color: #5b21b6; }
+.tag-freq    { background: var(--accent-bg); color: #3730a3; }
+.tag-overdue { background: var(--red-bg);    color: var(--red); }
+.tag-done    { background: var(--green-bg);  color: #065f46; }
+body.dark .tag-time  { color: #fcd34d; }
+body.dark .tag-dose  { color: #93c5fd; }
+body.dark .tag-cat   { color: #c4b5fd; }
+body.dark .tag-freq  { color: #a5b4fc; }
+body.dark .tag-overdue { color: var(--red); }
+body.dark .tag-done  { color: var(--green); }
+.med-notes { font-size: 12px; color: var(--muted); margin-top: 4px; font-style: italic; }
+
+/* Action buttons */
+.med-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-icon {
+  width: 32px; height: 32px; background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: var(--muted); transition: all var(--transition);
+}
+.btn-icon:hover      { transform: scale(1.1); }
+.btn-icon.del:hover  { background: var(--red-bg);    border-color: var(--red);    color: var(--red); }
+.btn-icon.edit:hover { background: var(--accent-bg); border-color: var(--accent); color: var(--accent); }
+/* ── Polish: action button press feedback ────────────────────────
+ *
+ * :active gives a scale-down "click" feel on all .btn-icon buttons.
+ * Combined with the existing :hover scale(1.1), the motion sequence
+ * is: rest → hover (scale up) → press (scale down) — a natural
+ * push-button sensation. Duration is short (0.1s) so it feels
+ * snappy, not sluggish.
+ * ---------------------------------------------------------------- */
+.btn-icon:active {
+  transform: scale(0.9);
+  transition-duration: 0.1s;
+}
+
+/* Primary button press — deepens the shadow inward to simulate
+ * physical depression. translateY(1px) offsets the hover lift. */
+.btn-primary:active {
+  box-shadow: 0 2px 6px rgba(79,110,247,.2);
+  transform: translateY(1px);
+}
+
+/* Danger button press */
+.btn-danger:active {
+  transform: scale(0.97);
+  transition-duration: 0.1s;
+}
+
+/* ── Empty state ─────────────────────────────────────────────────
+ *
+ * ANIMATION SEQUENCE:
+ *   emptyFadeUp — the whole empty block slides up from 20px below
+ *   and fades in over 0.4s. This feels intentional rather than
+ *   content "disappearing" to reveal a blank void.
+ *
+ *   float — the emoji oscillates vertically on a 3s loop.
+ *   Using transform:translateY (not top/margin) keeps it on the
+ *   GPU compositor thread — zero layout cost, smooth 60fps.
+ * ---------------------------------------------------------------- */
+.empty {
+  text-align: center;
+  padding: 70px 20px;
+  color: var(--muted);
+  animation: emptyFadeUp 0.4s cubic-bezier(.4,0,.2,1) both;
+}
+.empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 14px;
+  animation: float 3s ease-in-out infinite;
+  display: block; /* ensures margin auto works on inline emoji */
+}
+.empty p { font-size: 14px; line-height: 1.7; }
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%     { transform: translateY(-10px); }
+}
+@keyframes emptyFadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+/* ── Forms ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid .span2 { grid-column: 1/-1; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text2); }
+.field input, .field select, .field textarea {
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 9px; color: var(--text); font-family: var(--sans); font-size: 14px;
+  padding: 10px 14px; outline: none; transition: border-color var(--transition), box-shadow var(--transition), background var(--transition); width: 100%;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,.12); background: var(--surface);
+}
+.field input::placeholder { color: var(--muted); }
+.field select option { background: var(--surface); color: var(--text); }
+.field textarea { resize: vertical; min-height: 72px; }
+
+/* Voice input */
+.input-with-btn { position: relative; }
+.input-with-btn input { padding-right: 44px; }
+.voice-btn {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 28px; height: 28px; background: var(--accent-bg); border: none;
+  border-radius: 6px; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition);
+}
+.voice-btn:hover { background: var(--accent); }
+.voice-btn.listening { background: var(--red); animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{transform:translateY(-50%) scale(1)} 50%{transform:translateY(-50%) scale(1.15)} }
+
+.btn-primary {
+  background: var(--accent); color: #fff; border: none; cursor: pointer;
+  font-size: 14px; font-weight: 700; letter-spacing: .04em; padding: 12px 26px;
+  border-radius: 9px; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-primary:hover { background: var(--accent-h); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(79,110,247,.35); }
+.btn-primary:active { transform: translateY(0); }
+
+.btn-secondary {
+  background: var(--bg); color: var(--text2); border: 1.5px solid var(--border);
+  cursor: pointer; font-size: 14px; font-weight: 600; padding: 11px 22px;
+  border-radius: 9px; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-secondary:hover { border-color: var(--border2); color: var(--text); background: var(--surface); }
+
+.btn-danger {
+  background: var(--red-bg); color: var(--red); border: 1.5px solid rgba(239,68,68,.3);
+  cursor: pointer; font-size: 14px; font-weight: 700; padding: 11px 22px;
+  border-radius: 9px; transition: all var(--transition);
+  display: inline-flex; align-items: center; gap: 8px;
+}
+.btn-danger:hover { background: var(--red); color: #fff; }
+
+/* ── Toast ── */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; pointer-events: none; }
+/* ── Toast animation polish ──────────────────────────────────────
+ *
+ * ENTRY (toast-show):
+ *   Slides in from the right (translateX 32px → 0) while fading in.
+ *   A spring-like cubic-bezier (.34,1.28,.64,1) gives a slight
+ *   overshoot — the toast "bounces" into position, making it feel
+ *   alive rather than mechanical.
+ *
+ * EXIT (toast-out):
+ *   Faster than entry (0.2s vs 0.35s) and slides DOWN slightly
+ *   instead of back right — an asymmetric exit/enter pattern that
+ *   reads naturally: the notification arrives from outside and
+ *   dismisses downward (like a physical paper slip dropping).
+ *
+ * max-height transition:
+ *   Animating max-height (large → 0) lets stacked toasts collapse
+ *   their vertical space after exit without a layout jump.
+ *   margin-bottom collapses in sync so the gap closes smoothly.
+ * ---------------------------------------------------------------- */
+.toast {
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+  max-width: 340px;        /* prevents very long messages breaking layout */
+  overflow: hidden;
+  max-height: 80px;        /* used for collapse transition on exit */
+
+  opacity: 0;
+  transform: translateX(32px);
+  transition:
+    opacity    0.35s cubic-bezier(.34,1.28,.64,1),
+    transform  0.35s cubic-bezier(.34,1.28,.64,1),
+    max-height 0.25s ease,
+    margin     0.25s ease;
+}
+.toast.toast-show {
+  opacity: 1;
+  transform: translateX(0);
+}
+.toast.toast-out {
+  opacity: 0;
+  transform: translateY(8px);   /* exit downward, not back to the right */
+  max-height: 0;
+  margin-bottom: -8px;           /* collapses gap between stacked toasts */
+  transition:
+    opacity    0.2s ease,
+    transform  0.2s ease,
+    max-height 0.25s ease 0.15s, /* delay collapse until fade is done */
+    margin     0.25s ease 0.15s;
+}
+.toast.toast-show { opacity: 1; transform: translateX(0); }
+.toast.toast-out  { opacity: 0; transform: translateX(16px); }
+.toast-success { border-color: rgba(16,185,129,.4); }
+.toast-success .toast-icon { background: var(--green-bg); color: var(--green); }
+.toast-error   { border-color: rgba(239,68,68,.4); }
+.toast-error   .toast-icon { background: var(--red-bg);   color: var(--red); }
+.toast-info    { border-color: rgba(59,130,246,.4); }
+.toast-info    .toast-icon { background: var(--blue-bg);  color: var(--blue); }
+.toast-warn    { border-color: rgba(245,158,11,.4); }
+.toast-warn    .toast-icon { background: var(--yellow-bg);color: var(--yellow); }
+.toast-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .nav-link span:not(.icon){display:none}
+  .nav-link{padding:7px 10px}
+  .nav-brand .badge{display:none}
+}
+/* ── Responsive: tablet (≤768px) ────────────────────────────────
+ *
+ * Nav text labels hidden — only emoji icons remain. This prevents
+ * the navbar from wrapping to a second line on small screens.
+ * The .icon span stays visible; the text span is hidden.
+ * ---------------------------------------------------------------- */
+@media (max-width: 768px) {
+  .nav-link span:not(.icon) { display: none; }
+  .nav-link { padding: 7px 10px; }
+  .nav-brand .badge { display: none; }
+}
+
+/* ── Responsive: mobile (≤600px) ────────────────────────────────
+ *
+ * SPACING:
+ *   Page padding reduced from 32px→20px top, 24px→16px sides.
+ *   Bottom padding stays generous (60px) so the last card isn't
+ *   hidden under a fixed bottom bar on iOS Safari.
+ *
+ * STATS GRID:
+ *   4-column grid collapses to 2-column. Each card is large enough
+ *   to read at a glance without horizontal scrolling.
+ *
+ * RING WRAP:
+ *   Stacks vertically with centered text — the SVG ring is too
+ *   small to sit beside readable copy on a 360px viewport.
+ *
+ * MED CARD:
+ *   Reduce internal gap and padding so more cards are visible
+ *   without scrolling. Action buttons shrink slightly.
+ *
+ * TOAST:
+ *   Full-width toasts on mobile — the default 240px min-width can
+ *   overflow a 360px screen once the 24px right offset is added.
+ *   Bottom offset raised to 16px (from 24px) to clear iOS home
+ *   indicator on iPhone X and later.
+ * ---------------------------------------------------------------- */
+@media (max-width: 600px) {
+  .stats-grid       { grid-template-columns: 1fr 1fr; }
+  .form-grid        { grid-template-columns: 1fr; }
+  .form-grid .span2 { grid-column: 1; }
+  .page             { padding: 20px 16px 60px; }
+  .nav-date         { display: none; }
+  .ring-wrap        { flex-direction: column; text-align: center; }
+
+  /* Card padding tightens on small screens */
+  .med-card { padding: 13px 14px; gap: 10px; }
+
+  /* Action buttons slightly smaller touch targets — still 44px
+   * effective area via padding, per WCAG 2.5.5 guideline. */
+  .btn-icon { width: 30px; height: 30px; font-size: 13px; }
+
+  /* Toast repositioned and full-width */
+  .toast-wrap {
+    bottom: 16px;
+    right: 12px;
+    left: 12px;
+  }
+  .toast {
+    min-width: unset;
+    max-width: unset;
+    width: 100%;
+  }
+
+  /* Page header tightens */
+  .page-header-row  { margin-bottom: 18px; }
+  .page-header h1   { font-size: 1.4rem; }
+}
+
+/* ── Responsive: small phones (≤380px) ──────────────────────────
+ *
+ * Very narrow viewports (older Android, iPhone SE 1st gen).
+ * Stats go single column so numbers aren't truncated.
+ * ---------------------------------------------------------------- */
+@media (max-width: 380px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-num   { font-size: 1.8rem; }
+  .nav-inner  { padding: 0 12px; gap: 2px; }
+}
+/* ── Stock warning badges (shared.js getStockBadge) ── */
+.stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: .04em;
+  vertical-align: middle;
+}
+
+.stock-out {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(239,68,68,.25);
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.stock-low {
+  background: var(--yellow-bg);
+  color: #92400e;
+  border: 1px solid rgba(245,158,11,.25);
+}
+/* ── Inventory: stock detail tags on med-cards ───────────────────
+ *
+ * .stock-tag is the base class shared by all three levels.
+ * Level-specific modifiers (stock-tag-ok, -low, -out) set the
+ * colour scheme. They reuse the existing --red-bg / --yellow-bg /
+ * --blue-bg CSS variables so dark mode works for free.
+ *
+ * font-size: 10px matches .tag — stock tags sit inline in .med-meta
+ * alongside the existing time/dose/category tags.
+ * ---------------------------------------------------------------- */
+.stock-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .03em;
+  padding: 2px 8px;
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.stock-tag-ok {
+  background: var(--blue-bg);
+  color: #1e40af;
+  border: 1px solid rgba(59,130,246,.2);
+}
+body.dark .stock-tag-ok { color: var(--blue); }
+
+.stock-tag-low {
+  background: var(--yellow-bg);
+  color: #92400e;
+  border: 1px solid rgba(245,158,11,.25);
+}
+body.dark .stock-tag-low { color: var(--yellow); }
+
+.stock-tag-out {
+  background: var(--red-bg);
+  color: var(--red);
+  border: 1px solid rgba(239,68,68,.25);
+  /* Pulse draws the eye — out-of-stock is the most urgent state */
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+/* ── Inventory: ➕ Stock button ──────────────────────────────────
+ *
+ * Extends .btn-icon with a wider min-width so the "➕ Stock" label
+ * fits without wrapping. Hover state uses green to signal "add"
+ * rather than the edit (blue) or delete (red) colours.
+ *
+ * width:auto overrides the 32px fixed width from .btn-icon so the
+ * text label is always fully visible.
+ * ---------------------------------------------------------------- */
+.btn-icon.add-stock {
+  width: auto;
+  min-width: 32px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  border-color: rgba(16,185,129,.3);
+  background: var(--green-bg);
+  gap: 3px;
+}
+.btn-icon.add-stock:hover {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+  transform: scale(1.05);
+}
+body.dark .stock-low { color: var(--yellow); }

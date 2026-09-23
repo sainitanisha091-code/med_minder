@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedMinder — Welcome</title>
+  <link rel="stylesheet" href="login.css"/>
+  
+</head>
+<body>
+  <div id="splash-screen">
+  <div class="splash-content">
+    <div class="splash-logo">💊</div>
+    <div class="splash-title">Med<span>Minder</span></div>
+    <div class="splash-subtitle">Your personal medicine reminder companion</div>
+
+    <div class="loader-bar">
+      <div class="loader-fill"></div>
+    </div>
+
+    <div class="loading-text">Loading your health dashboard...</div>
+  </div>
+</div>
+  <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">🌙</button>
+
+  <div class="login-wrapper">
+
+    <!-- Brand -->
+    <div class="login-brand">
+      <div class="brand-logo">
+        <div class="brand-icon">💊</div>
+        <div class="brand-name">Med<span class="dot">Minder</span></div>
+      </div>
+      <div class="brand-tagline">Your personal medicine reminder companion</div>
+    </div>
+
+    <!-- Card -->
+    <div class="login-card">
+
+      <!-- Global alert -->
+      <div class="login-alert" id="login-alert" role="alert" aria-live="polite">
+        <span class="alert-icon">🚨</span>
+        <span class="alert-text"></span>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PANEL 0 — Welcome / Choose path
+      ══════════════════════════════════════ -->
+      <div class="panel" id="panel-welcome">
+        <div class="card-header" style="text-align:center;margin-bottom:32px;">
+          <h1 class="card-title" style="font-size:1.45rem;">Welcome to MedMinder 👋</h1>
+          <p class="card-sub" style="margin-top:6px;">Are you new here, or have you been with us before?</p>
+        </div>
+
+        <div class="welcome-choices">
+          <button class="welcome-btn new-btn" id="btn-go-register">
+            <span class="wbtn-icon">✨</span>
+            <span class="wbtn-content">
+              <span class="wbtn-title">I'm new here</span>
+              <span class="wbtn-sub">Create a free account</span>
+            </span>
+            <span class="wbtn-arrow">→</span>
+          </button>
+
+          <div class="welcome-divider"><span>or</span></div>
+
+          <button class="welcome-btn return-btn" id="btn-go-login">
+            <span class="wbtn-icon">🔑</span>
+            <span class="wbtn-content">
+              <span class="wbtn-title">I have an account</span>
+              <span class="wbtn-sub">Sign in and continue</span>
+            </span>
+            <span class="wbtn-arrow">→</span>
+          </button>
+        </div>
+
+        <div class="demo-hint" style="margin-top:24px;">
+          <div class="demo-hint-title">🧪 Demo Credentials — click to auto-fill</div>
+          <div id="demo-credentials"></div>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PANEL 1 — Register
+      ══════════════════════════════════════ -->
+      <div class="panel hidden" id="panel-register">
+        <div class="panel-nav">
+          <button class="back-btn" id="back-from-register">← Back</button>
+          <span class="panel-step">New Account</span>
+        </div>
+
+        <div class="card-header">
+          <h1 class="card-title">Create your account ✨</h1>
+          <p class="card-sub">Join MedMinder — it's free and takes 30 seconds.</p>
+        </div>
+
+        <form id="register-form" novalidate autocomplete="on">
+
+          <div class="field-group" id="rg-fg-name">
+            <label class="field-label" for="rg-name">Full Name</label>
+            <div class="input-wrap">
+              <span class="input-icon">🙍</span>
+              <input class="field-input" type="text" id="rg-name" name="name"
+                     placeholder="Jane Doe" autocomplete="name" required/>
+            </div>
+            <div class="field-error" role="alert"></div>
+          </div>
+
+          <div class="field-group" id="rg-fg-email">
+            <label class="field-label" for="rg-email">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">📧</span>
+              <input class="field-input" type="email" id="rg-email" name="email"
+                     placeholder="you@example.com" autocomplete="email" inputmode="email" required/>
+            </div>
+            <div class="field-error" role="alert"></div>
+          </div>
+
+          <div class="field-group" id="rg-fg-password">
+            <label class="field-label" for="rg-password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="field-input has-toggle" type="password" id="rg-password" name="password"
+                     placeholder="Min. 6 characters" autocomplete="new-password" required/>
+              <button type="button" class="pwd-toggle" id="rg-pwd-toggle" title="Show password">👁️</button>
+            </div>
+            <div class="field-error" role="alert"></div>
+            <div class="strength-wrap" id="rg-strength-wrap">
+              <div class="strength-bar-track">
+                <div class="strength-bar-fill" id="rg-strength-bar" style="width:0%"></div>
+              </div>
+              <span class="strength-text" id="rg-strength-text">Strength: —</span>
+            </div>
+          </div>
+
+          <div class="field-group" id="rg-fg-confirm">
+            <label class="field-label" for="rg-confirm">Confirm Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔑</span>
+              <input class="field-input" type="password" id="rg-confirm" name="confirm"
+                     placeholder="Repeat your password" autocomplete="new-password" required/>
+            </div>
+            <div class="field-error" role="alert"></div>
+          </div>
+
+          <button type="submit" class="btn-login" id="btn-register">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-text">Create Account</span>
+          </button>
+        </form>
+
+        <div class="login-footer" style="margin-top:16px;">
+          Already have an account? <a href="#" id="switch-to-login">Sign in instead →</a>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════
+           PANEL 2 — Login
+      ══════════════════════════════════════ -->
+      <div class="panel hidden" id="panel-login">
+        <div class="panel-nav">
+          <button class="back-btn" id="back-from-login">← Back</button>
+          <span class="panel-step">Sign In</span>
+        </div>
+
+        <div class="card-header">
+          <h1 class="card-title">Welcome back 👋</h1>
+          <p class="card-sub">Sign in to access your reminders and health dashboard.</p>
+        </div>
+
+        <form id="login-form" novalidate autocomplete="on">
+
+          <div class="field-group" id="fg-email">
+            <label class="field-label" for="email">Email Address</label>
+            <div class="input-wrap">
+              <span class="input-icon">📧</span>
+              <input class="field-input" type="email" id="email" name="email"
+                     placeholder="you@example.com" autocomplete="email" inputmode="email" required
+                     aria-describedby="email-error"/>
+            </div>
+            <div class="field-error" id="email-error" role="alert"></div>
+          </div>
+
+          <div class="field-group" id="fg-password">
+            <label class="field-label" for="password">Password</label>
+            <div class="input-wrap">
+              <span class="input-icon">🔒</span>
+              <input class="field-input has-toggle" type="password" id="password" name="password"
+                     placeholder="Your password" autocomplete="current-password" required
+                     aria-describedby="pwd-error"/>
+              <button type="button" class="pwd-toggle" id="pwd-toggle" title="Show password">👁️</button>
+            </div>
+            <div class="field-error" id="pwd-error" role="alert"></div>
+          </div>
+
+          <div class="form-meta">
+            <label class="remember-wrap">
+              <input type="checkbox" id="remember" name="remember"/>
+              <span class="remember-label">Remember me</span>
+            </label>
+            <a href="#" class="forgot-link" id="forgot-link">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-login" id="btn-login">
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span class="btn-text">Sign In</span>
+          </button>
+        </form>
+
+        <div class="login-footer" style="margin-top:16px;">
+          Don't have an account? <a href="#" id="switch-to-register">Create one free →</a>
+        </div>
+      </div>
+
+    </div><!-- /login-card -->
+
+    <div class="login-footer" style="margin-top:16px;">
+      <a href="MedMinder_Dashboard.html">Go to Dashboard →</a>
+    </div>
+
+  </div><!-- /login-wrapper -->
+
+  <script src="login.js"></script>
+  <script>
+    /* ── Panel switcher ── */
+    function showPanel(id) {
+      document.querySelectorAll('.panel').forEach(p => {
+        p.classList.add('hidden');
+        p.classList.remove('panel-enter');
+      });
+      const t = document.getElementById(id);
+      t.classList.remove('hidden');
+      requestAnimationFrame(() => t.classList.add('panel-enter'));
+      hideAlert();
+    }
+
+    document.getElementById('btn-go-register').addEventListener('click',    () => showPanel('panel-register'));
+    document.getElementById('btn-go-login').addEventListener('click',        () => showPanel('panel-login'));
+    document.getElementById('back-from-register').addEventListener('click',  () => showPanel('panel-welcome'));
+    document.getElementById('back-from-login').addEventListener('click',     () => showPanel('panel-welcome'));
+    document.getElementById('switch-to-login').addEventListener('click',     e  => { e.preventDefault(); showPanel('panel-login'); });
+    document.getElementById('switch-to-register').addEventListener('click',  e  => { e.preventDefault(); showPanel('panel-register'); });
+
+    /* ── Register form submit ── */
+    document.getElementById('register-form').addEventListener('submit', handleRegisterSubmit);
+
+    /* ── Password toggle — register ── */
+    const rgToggle = document.getElementById('rg-pwd-toggle');
+    const rgPwd    = document.getElementById('rg-password');
+    rgToggle.addEventListener('click', () => {
+      const t = rgPwd.type === 'text';
+      rgPwd.type = t ? 'password' : 'text';
+      rgToggle.textContent = t ? '👁️' : '🙈';
+    });
+
+    /* ── Strength meter — register ── */
+    rgPwd.addEventListener('input', e => {
+      const pw = e.target.value;
+      const wrap = document.getElementById('rg-strength-wrap');
+      const bar  = document.getElementById('rg-strength-bar');
+      const lbl  = document.getElementById('rg-strength-text');
+      if (!pw) { wrap.classList.remove('show'); return; }
+      wrap.classList.add('show');
+      const { label, color, width } = getPasswordStrength(pw);
+      bar.style.width = width; bar.style.background = color;
+      lbl.style.color = color; lbl.textContent = `Strength: ${label}`;
+    });
+
+    /* ── Forgot password ── */
+    document.getElementById('forgot-link').addEventListener('click', e => {
+      e.preventDefault();
+      const al = document.getElementById('login-alert');
+      al.className = 'login-alert show';
+      al.style.cssText = 'background:var(--accent-bg);color:var(--accent);border:1px solid rgba(79,110,247,0.25)';
+      al.querySelector('.alert-icon').textContent = 'ℹ️';
+      al.querySelector('.alert-text').textContent = 'Password reset is not available in this demo. Please register a new account.';
+      setTimeout(() => { al.classList.remove('show'); al.style.cssText = ''; }, 4000);
+    });
+  </script>
+  <script>
+window.addEventListener('load', () => {
+  const splash = document.getElementById('splash-screen');
+
+  if (!splash) {
+    document.body.classList.add('loaded');
+    return;
+  }
+
+  setTimeout(() => {
+    splash.classList.add('hidden');
+    document.body.classList.add('loaded');
+
+    setTimeout(() => {
+      splash.remove();
+    }, 800);
+  }, 3000);
+});
+</script>
+</body>
+</html>

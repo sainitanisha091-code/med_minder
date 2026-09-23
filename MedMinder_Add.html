@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedMinder — Add Reminder</title>
+  <link rel="stylesheet" href="medminder.css"/>
+  <style>
+    .form-container { max-width: 700px; }
+
+    .form-section {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius-lg); padding: 26px 28px;
+      box-shadow: var(--shadow); margin-bottom: 18px;
+      transition: border-color var(--transition);
+    }
+    .form-section:focus-within { border-color: rgba(79,110,247,.3); }
+    .section-label {
+      font-size: 11px; font-weight: 800; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--muted); margin-bottom: 18px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    /* Cat picker */
+    .cat-picker { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; }
+    .cat-opt {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 12px 6px; border-radius: 10px;
+      border: 2px solid var(--border); cursor: pointer;
+      background: var(--bg); transition: all 0.2s ease;
+    }
+    .cat-opt .co-em  { font-size: 1.5rem; }
+    .cat-opt .co-lbl { font-size: 10px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; }
+    .cat-opt:hover   { border-color: var(--accent); transform: translateY(-2px); }
+    .cat-opt.selected{ border-color: var(--accent); background: var(--accent-bg); box-shadow: 0 4px 12px rgba(79,110,247,.2); }
+    .cat-opt.selected .co-lbl { color: var(--accent); }
+
+    /* Freq picker */
+    .freq-picker { display: flex; gap: 8px; flex-wrap: wrap; }
+    .freq-opt {
+      padding: 7px 16px; border-radius: 8px;
+      border: 2px solid var(--border); background: var(--bg);
+      cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text2);
+      transition: all 0.18s;
+    }
+    .freq-opt:hover    { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+    .freq-opt.selected { border-color: var(--accent); background: var(--accent); color: #fff; }
+
+    /* Smart suggestion */
+    .suggest-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(16,185,129,.3);
+      border-radius: 100px; padding: 3px 10px;
+      font-size: 11px; font-weight: 700; margin-top: 6px;
+      animation: slideIn .3s ease; cursor: pointer;
+      transition: all var(--transition);
+    }
+    .suggest-badge:hover { background: var(--green); color: #fff; }
+
+    /* Preview */
+    .preview-box { background: var(--bg); border: 2px dashed var(--border); border-radius: var(--radius); padding: 16px 18px; }
+
+    /* Edit banner */
+    .edit-banner {
+      background: var(--yellow-bg); border: 1.5px solid rgba(245,158,11,.4);
+      border-radius: var(--radius); padding: 13px 18px;
+      display: none; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 600; color: #92400e;
+      margin-bottom: 20px;
+    }
+    body.dark .edit-banner { color: var(--yellow); }
+    .edit-banner.show { display: flex; }
+
+    .form-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+
+    /* Tips */
+    .tip-list { list-style: none; }
+    .tip-list li {
+      font-size: 12px; color: var(--text2); padding: 6px 0;
+      border-bottom: 1px solid var(--border); display: flex; gap: 8px;
+    }
+    .tip-list li:last-child { border-bottom: none; }
+
+    @media(max-width:500px){ .cat-picker{grid-template-columns:repeat(3,1fr)} }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="MedMinder_Dashboard.html" class="nav-brand">💊 Med<span class="dot">Minder</span> </a>
+    <a href="MedMinder_Dashboard.html" class="nav-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+    <a href="MedMinder_Add.html"       class="nav-link"><span class="icon">➕</span><span>Add</span></a>
+    <a href="MedMinder_History.html"   class="nav-link"><span class="icon">📋</span><span>History</span></a>
+    <div class="nav-spacer"></div>
+    <span class="nav-date" id="nav-date"></span>
+    <button class="btn-theme" id="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="form-container">
+
+    <div class="page-header-row">
+      <div class="page-header">
+        <h1 id="page-title">Add Reminder</h1>
+        <p id="page-sub">Fill in the details for your new medicine</p>
+      </div>
+      <a href="MedMinder_Dashboard.html" class="btn-secondary">← Dashboard</a>
+    </div>
+
+    <div class="edit-banner" id="edit-banner">
+      ✏️ <span id="edit-banner-text">You are editing an existing reminder.</span>
+    </div>
+
+    <!-- Medicine details -->
+    <div class="form-section">
+      <div class="section-label">💊 Medicine Details</div>
+      <div class="form-grid">
+        <div class="field span2">
+          <label>Medicine Name *</label>
+          <div class="input-with-btn">
+            <input type="text" id="in-name" placeholder="e.g. Paracetamol 500mg" autocomplete="off"/>
+            <button class="voice-btn" id="voice-btn" onclick="startVoice()" title="Voice input">🎤</button>
+          </div>
+          <div id="voice-status" style="font-size:11px;color:var(--muted);margin-top:4px;display:none">🎤 Listening…</div>
+        </div>
+        <div class="field">
+          <label>Dosage</label>
+          <input type="text" id="in-dose" placeholder="e.g. 1 tablet, 5ml"/>
+        </div>
+        <div class="field">
+          <label>Reminder Time *</label>
+          <input type="time" id="in-time" oninput="onTimeInput()"/>
+          <div id="cat-suggest" style="display:none"></div>
+        </div>
+        <div class="field span2">
+          <label>Notes (optional)</label>
+          <input type="text" id="in-notes" placeholder="e.g. Take after meals, with water"/>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category -->
+    <div class="form-section">
+      <div class="section-label">🏷️ Category</div>
+      <div class="cat-picker" id="cat-picker">
+        <div class="cat-opt selected" data-cat="morning"><span class="co-em">🌅</span><span class="co-lbl">Morning</span></div>
+        <div class="cat-opt" data-cat="afternoon"><span class="co-em">☀️</span><span class="co-lbl">Afternoon</span></div>
+        <div class="cat-opt" data-cat="evening"><span class="co-em">🌆</span><span class="co-lbl">Evening</span></div>
+        <div class="cat-opt" data-cat="night"><span class="co-em">🌙</span><span class="co-lbl">Night</span></div>
+        <div class="cat-opt" data-cat="asneeded"><span class="co-em">⚡</span><span class="co-lbl">As Needed</span></div>
+      </div>
+    </div>
+
+    <!-- Frequency -->
+    <div class="form-section">
+      <div class="section-label">🔁 Frequency</div>
+      <div class="freq-picker" id="freq-picker">
+        <div class="freq-opt selected" data-freq="Daily">Daily</div>
+        <div class="freq-opt" data-freq="Twice daily">Twice Daily</div>
+        <div class="freq-opt" data-freq="Three times daily">3× Daily</div>
+        <div class="freq-opt" data-freq="Weekly">Weekly</div>
+        <div class="freq-opt" data-freq="As needed">As Needed</div>
+      </div>
+    </div>
+
+    <!-- Live Preview -->
+    <div class="form-section">
+      <div class="section-label">👁️ Live Preview</div>
+      <div class="preview-box" id="preview-box"></div>
+    </div>
+
+    <!-- Actions -->
+    <div class="form-actions">
+      <button class="btn-primary" onclick="handleSubmit()">✅ <span id="submit-label">Save Reminder</span></button>
+      <button class="btn-secondary" onclick="clearForm()">↺ Clear</button>
+      <button class="btn-danger" id="btn-delete" style="display:none" onclick="handleDeleteEdit()">🗑️ Delete</button>
+    </div>
+
+    <!-- Tips -->
+    <div class="form-section" style="margin-top:24px">
+      <div class="section-label">💡 Tips</div>
+      <ul class="tip-list">
+        <li><span>🎤</span> Use the mic button to speak the medicine name</li>
+        <li><span>⚡</span> Set the time first — category is auto-suggested!</li>
+        <li><span>📤</span> Export your data anytime from the Dashboard</li>
+        <li><span>🔔</span> Enable browser notifications for real alerts</li>
+      </ul>
+    </div>
+
+  </div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="shared.js"></script>
+<script src="add.js"></script>
+</body>
+</html>

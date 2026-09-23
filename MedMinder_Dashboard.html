@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedMinder — Dashboard</title>
+  <link rel="stylesheet" href="medminder.css"/>
+  <style>
+    /* ── Today hero strip ── */
+    .hero {
+      background: linear-gradient(135deg, var(--accent) 0%, #7c3aed 100%);
+      border-radius: var(--radius-lg); padding: 26px 28px;
+      color: #fff; margin-bottom: 24px;
+      display: flex; align-items: center; gap: 20px;
+      box-shadow: 0 8px 32px rgba(79,110,247,.3);
+      position: relative; overflow: hidden;
+    }
+    .hero::after {
+      content: ''; position: absolute; right: -30px; top: -30px;
+      width: 160px; height: 160px;
+      border-radius: 50%; background: rgba(255,255,255,.06);
+    }
+    .hero-emoji { font-size: 2.8rem; flex-shrink: 0; animation: float 3s ease-in-out infinite; }
+    .hero-text h2 { font-size: 1.3rem; font-weight: 800; }
+    .hero-text p  { font-size: 13px; opacity: .85; margin-top: 3px; }
+    .hero-spacer  { flex: 1; }
+    .hero-right   { text-align: right; }
+    .hero-pct     { font-size: 2.4rem; font-weight: 800; line-height: 1; }
+    .hero-pct-sub { font-size: 11px; opacity: .8; margin-top: 2px; }
+
+    /* ── Quick actions ── */
+    .qa-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; margin-bottom: 24px; }
+    .qa-btn {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: var(--radius); padding: 16px;
+      cursor: pointer; transition: all 0.25s ease;
+      display: flex; align-items: center; gap: 12px;
+      text-align: left; box-shadow: var(--shadow);
+      text-decoration: none; color: inherit;
+    }
+    .qa-btn:hover { border-color: var(--accent); transform: translateY(-3px) scale(1.01); box-shadow: var(--shadow-md); }
+    .qa-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .qa-icon.blue   { background: var(--accent-bg); }
+    .qa-icon.green  { background: var(--green-bg); }
+    .qa-icon.yellow { background: var(--yellow-bg); }
+    .qa-label { font-size: 13px; font-weight: 700; }
+    .qa-sub   { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    /* ── Overdue alert ── */
+    .overdue-alert {
+      background: var(--red-bg); border: 1.5px solid rgba(239,68,68,.4);
+      border-radius: var(--radius); padding: 14px 18px;
+      display: none; align-items: center; gap: 12px;
+      font-size: 13px; font-weight: 600; color: var(--red);
+      margin-bottom: 20px; animation: slideIn .3s ease;
+    }
+    .overdue-alert.show { display: flex; }
+    .oa-icon { font-size: 1.2rem; animation: pulse 1.5s infinite; }
+
+    /* ── Chart section ── */
+    .chart-section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius-lg); padding: 22px 24px;
+      box-shadow: var(--shadow); margin-bottom: 24px;
+    }
+    .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .chart-title { font-size: 13px; font-weight: 700; }
+    .chart-wrap { max-width: 280px; margin: 0 auto; }
+
+    /* User pill */
+    .user-pill {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg); border: 1.5px solid var(--border);
+      border-radius: 100px; padding: 5px 14px 5px 8px;
+      cursor: pointer; transition: all var(--transition); font-size: 13px;
+    }
+    .user-pill:hover { border-color: var(--accent); }
+    .user-avatar {
+      width: 24px; height: 24px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--purple));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 800; color: #fff;
+    }
+    .user-name { font-weight: 600; color: var(--text2); }
+
+    @media(max-width:600px){ .qa-grid{grid-template-columns:1fr 1fr} }
+    /* ── Stock Alert Panel ── */
+    .stock-alert-panel {
+      display: none;                          /* hidden until JS adds .show */
+      background: var(--surface);
+      border: 1.5px solid rgba(239,68,68,.35);
+      border-radius: var(--radius-lg);
+      padding: 18px 20px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow);
+      animation: slideIn .3s ease;
+    }
+    .stock-alert-panel.show { display: block; }
+
+    .stock-alert-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 14px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sah-icon  { font-size: 1rem; animation: pulse 1.8s infinite; }
+    .sah-title { font-size: 13px; font-weight: 800; color: var(--red); flex: 1; }
+    .sah-sub   { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+
+    /* ── Individual stock alert row ── */
+    .stock-alert-row {
+      display: flex; align-items: center;
+      justify-content: space-between; gap: 12px;
+      padding: 10px 12px;
+      border-radius: var(--radius);
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      transition: background var(--transition);
+    }
+    .stock-alert-row:last-child { margin-bottom: 0; }
+
+    .stock-row-out {
+      background: var(--red-bg);
+      border-color: rgba(239,68,68,.2);
+    }
+    .stock-row-low {
+      background: var(--yellow-bg);
+      border-color: rgba(245,158,11,.2);
+    }
+
+    .sar-left  { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .sar-cat   { font-size: 1.3rem; flex-shrink: 0; }
+    .sar-info  { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .sar-name  { font-size: 13px; font-weight: 700; color: var(--text);
+                 white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sar-dose  { font-size: 11px; color: var(--muted); }
+    .sar-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+    /* ── "All ok" fallback text ── */
+    .stock-all-ok {
+      font-size: 13px; color: var(--green);
+      font-weight: 600; text-align: center;
+      padding: 8px 0;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="MedMinder_Dashboard.html" class="nav-brand">💊 Med<span class="dot">Minder</span> </a>
+    <a href="MedMinder_Dashboard.html" class="nav-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+    <a href="MedMinder_Add.html"       class="nav-link"><span class="icon">➕</span><span>Add</span></a>
+    <a href="MedMinder_History.html"   class="nav-link"><span class="icon">📋</span><span>History</span></a>
+    <div class="nav-spacer"></div>
+    <span class="nav-date" id="nav-date"></span>
+    <button class="btn-notif" id="notif-btn" onclick="requestNotifPermission()" title="Enable notifications">
+      🔔<span class="notif-dot" id="notif-dot"></span>
+    </button>
+    <button class="btn-theme" id="theme-btn" onclick="toggleTheme()" title="Toggle dark mode">🌙</button>
+    <div class="user-pill" title="Logged in user">
+  <div class="user-avatar" id="user-avatar">?</div>
+  <span class="user-name" id="user-name-display">Guest</span>
+</div>
+
+<button class="btn-secondary" onclick="logout()" title="Logout">
+  🚪 Logout
+</button>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-header-row">
+    <div class="page-header">
+      <h1 id="greeting">Dashboard</h1>
+      <p id="today-date-str">Loading...</p>
+    </div>
+    <a href="MedMinder_Add.html" class="btn-primary">➕ Add Reminder</a>
+  </div>
+
+  <!-- Hero strip -->
+  <div class="hero">
+    <div class="hero-emoji" id="hero-emoji">💊</div>
+    <div class="hero-text">
+      <h2 id="hero-greeting">Good morning!</h2>
+      <p id="hero-sub">Stay on track with your medicines today.</p>
+    </div>
+    <div class="hero-spacer"></div>
+    <div class="hero-right">
+      <div class="hero-pct" id="hero-pct">0%</div>
+      <div class="hero-pct-sub">taken today</div>
+    </div>
+  </div>
+  <!-- ── Stock Analytics Cards ── -->
+  <!--
+    Populated by dashboard.js updateAnalytics() → buildAnalyticsCards().
+    The grid reuses the existing .stats-grid class so it inherits
+    all responsive behaviour from medminder.css with no extra CSS needed.
+  -->
+  <div class="stats-grid" id="analytics-cards">
+    <!-- JS will inject four stat-card divs here on render() -->
+  </div>
+
+  <!-- ── Stock Alert Panel ── -->
+  <!--
+    Hidden by default (.show added by JS only when alertItems.length > 0).
+    updateAnalytics() populates #stock-alert-rows via buildStockAlertRows().
+  -->
+  <div class="stock-alert-panel" id="stock-alert-panel">
+    <div class="stock-alert-header">
+      <span class="sah-icon">🔴</span>
+      <span class="sah-title">Stock Alerts</span>
+      <span class="sah-sub" id="stock-alert-count"></span>
+    </div>
+    <div id="stock-alert-rows">
+      <!-- JS injects one .stock-alert-row per at-risk medicine -->
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card s-blue">  <div class="stat-icon">💊</div><div class="stat-num c-blue"   id="s-total">0</div>  <div class="stat-label">Total</div></div>
+    <div class="stat-card s-yellow"><div class="stat-icon">⏳</div><div class="stat-num c-yellow" id="s-pending">0</div><div class="stat-label">Pending</div></div>
+    <div class="stat-card s-green"> <div class="stat-icon">✅</div><div class="stat-num c-green"  id="s-done">0</div>   <div class="stat-label">Taken</div></div>
+    <div class="stat-card s-red">   <div class="stat-icon">⚠️</div><div class="stat-num c-red"    id="s-overdue">0</div><div class="stat-label">Overdue</div></div>
+  </div>
+
+  <!-- Progress Ring -->
+  <div class="ring-wrap">
+    <div class="ring-container" style="width:100px;height:100px;">
+      <svg class="ring-svg" width="100" height="100" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%"   stop-color="#4f6ef7"/>
+            <stop offset="100%" stop-color="#10b981"/>
+          </linearGradient>
+        </defs>
+        <circle class="ring-bg"   cx="50" cy="50" r="40"/>
+        <circle class="ring-fill" cx="50" cy="50" r="40" id="ring-fill"
+          stroke-dasharray="251.2" stroke-dashoffset="251.2"/>
+      </svg>
+      <div style="position:absolute;text-align:center;">
+        <div class="ring-pct-label" id="ring-pct">0%</div>
+        <div class="ring-pct-sub">done</div>
+      </div>
+    </div>
+    <div class="ring-text-info">
+      <h3>Daily Progress</h3>
+      <p id="ring-msg">Complete your medicines for today</p>
+    </div>
+  </div>
+
+  <!-- Overdue alert -->
+  <div class="overdue-alert" id="overdue-alert">
+    <span class="oa-icon">🚨</span>
+    <span id="overdue-msg">You have overdue medicines!</span>
+  </div>
+
+  <!-- Quick actions -->
+  <div class="qa-grid">
+    <a href="MedMinder_Add.html" class="qa-btn">
+      <div class="qa-icon blue">➕</div>
+      <div><div class="qa-label">New Reminder</div><div class="qa-sub">Add a medicine</div></div>
+    </a>
+    <button class="qa-btn" onclick="markAllDone()">
+      <div class="qa-icon green">✅</div>
+      <div><div class="qa-label">Mark All Taken</div><div class="qa-sub">Complete today's list</div></div>
+    </button>
+    <button class="qa-btn" onclick="exportData()">
+      <div class="qa-icon yellow">📤</div>
+      <div><div class="qa-label">Export Data</div><div class="qa-sub">Download JSON</div></div>
+    </button>
+  </div>
+
+  <!-- Chart -->
+  <div class="chart-section">
+    <div class="chart-header">
+<span class="chart-title">📊 Today's Overview</span>
+      <span style="font-size:11px;color:var(--muted);font-family:var(--mono)">outer: status · inner: stock</span>    </div>
+    <div class="chart-wrap">
+      <canvas id="donut-chart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="toolbar" id="filters">
+    <span class="toolbar-label">Filter:</span>
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="pending">⏳ Pending</button>
+    <button class="chip" data-filter="overdue">🔴 Overdue</button>
+    <button class="chip" data-filter="done">✅ Taken</button>
+    <button class="chip" data-filter="morning">🌅 Morning</button>
+    <button class="chip" data-filter="afternoon">☀️ Afternoon</button>
+    <button class="chip" data-filter="evening">🌆 Evening</button>
+    <button class="chip" data-filter="night">🌙 Night</button>
+  </div>
+  <div class="toolbar">
+    <span class="toolbar-label">Sort:</span>
+    <button class="sort-chip active" data-sort="time">Time</button>
+    <button class="sort-chip" data-sort="name">Name</button>
+    <button class="sort-chip" data-sort="cat">Category</button>
+  </div>
+
+  <!-- Skeleton loaders -->
+  <div id="skeletons">
+    <div class="skeleton" style="margin-bottom:10px"></div>
+    <div class="skeleton" style="margin-bottom:10px"></div>
+    <div class="skeleton sk-sm"></div>
+  </div>
+
+  <!-- Medicine list -->
+  <div id="list" style="display:none"></div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="shared.js"></script>
+<script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MedMinder — History</title>
+  <link rel="stylesheet" href="medminder.css"/>
+  <style>
+    /* Summary row */
+    .summary-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+    .sum-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); text-align: center; transition: transform var(--transition); }
+    .sum-card:hover { transform: translateY(-3px); }
+    .sum-num { font-size: 2rem; font-weight: 800; letter-spacing: -.04em; }
+    .sum-label { font-size: 12px; color: var(--text2); margin-top: 4px; font-weight: 500; }
+
+    /* Chart section */
+    .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+    .chart-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow); }
+    .chart-title { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 14px; }
+
+    /* Breakdown bars */
+    .br-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+    .br-row:last-child { margin-bottom: 0; }
+    .br-lbl { width: 90px; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
+    .br-track { flex: 1; height: 8px; background: var(--border); border-radius: 100px; overflow: hidden; }
+    .br-fill  { height: 100%; border-radius: 100px; transition: width .7s cubic-bezier(.34,1.56,.64,1); }
+    .br-count { font-family: var(--mono); font-size: 11px; color: var(--muted); width: 22px; text-align: right; flex-shrink: 0; }
+
+    /* Search */
+    .search-wrap { position: relative; margin-bottom: 18px; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 15px; color: var(--muted); pointer-events: none; }
+    .search-input {
+      width: 100%; padding: 11px 44px;
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 10px; font-family: var(--sans); font-size: 14px; color: var(--text);
+      outline: none; transition: border-color var(--transition), box-shadow var(--transition);
+      box-shadow: var(--shadow);
+    }
+    .search-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,.1); }
+    .search-input::placeholder { color: var(--muted); }
+    .search-clear { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 16px; color: var(--muted); display: none; }
+    .search-clear.show { display: block; }
+
+    /* View toggle */
+    .view-toggle { display: flex; gap: 6px; }
+    .vt-btn { padding: 6px 13px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--bg); color: var(--muted); cursor: pointer; font-size: 13px; font-weight: 600; font-family: var(--sans); transition: all var(--transition); }
+    .vt-btn:hover  { border-color: var(--border2); color: var(--text); }
+    .vt-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    /* Result count */
+    .result-count { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; }
+
+    /* Table */
+    .tbl-wrap { overflow-x: auto; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow); }
+    .med-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .med-table th { text-align: left; padding: 12px 16px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); border-bottom: 1.5px solid var(--border); background: var(--bg); white-space: nowrap; }
+    .med-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .med-table tbody tr { transition: background var(--transition); }
+    .med-table tbody tr:hover td { background: var(--accent-bg); }
+    .med-table tbody tr:last-child td { border-bottom: none; }
+    .tbl-name { font-weight: 700; }
+    .status-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; text-transform: uppercase; letter-spacing: .06em; }
+    .status-done    { background: var(--green-bg);  color: var(--green); }
+    .status-overdue { background: var(--red-bg);    color: var(--red); }
+    .status-pending { background: var(--yellow-bg); color: #92400e; }
+    body.dark .status-pending { color: var(--yellow); }
+    .tbl-actions { display: flex; gap: 6px; }
+
+    /* Import / export */
+    .data-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px; }
+    .import-label {
+      background: var(--surface); border: 1.5px solid var(--border);
+      border-radius: 9px; padding: 11px 20px;
+      font-size: 14px; font-weight: 600; color: var(--text2); cursor: pointer;
+      transition: all var(--transition); display: inline-flex; align-items: center; gap: 8px;
+    }
+    .import-label:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-bg); }
+    #import-file { display: none; }
+
+    /* Danger zone */
+    .danger-zone { background: var(--red-bg); border: 1.5px solid rgba(239,68,68,.3); border-radius: var(--radius); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-top: 24px; }
+    .dz-text { font-size: 13px; font-weight: 700; color: var(--red); }
+    .dz-sub  { font-size: 12px; color: var(--red); opacity: .7; margin-top: 2px; }
+
+    @media(max-width:600px){
+      .summary-grid{grid-template-columns:1fr 1fr}
+      .chart-grid{grid-template-columns:1fr}
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-inner">
+    <a href="MedMinder_Dashboard.html" class="nav-brand">💊 Med<span class="dot">Minder</span> </a>
+    <a href="MedMinder_Dashboard.html" class="nav-link"><span class="icon">🏠</span><span>Dashboard</span></a>
+    <a href="MedMinder_Add.html"       class="nav-link"><span class="icon">➕</span><span>Add</span></a>
+    <a href="MedMinder_History.html"   class="nav-link"><span class="icon">📋</span><span>History</span></a>
+    <div class="nav-spacer"></div>
+    <span class="nav-date" id="nav-date"></span>
+    <button class="btn-theme" id="theme-btn" onclick="toggleTheme()">🌙</button>
+  </div>
+</nav>
+
+<main class="page">
+  <div class="page-header-row">
+    <div class="page-header">
+      <h1>History &amp; Analytics</h1>
+      <p>All reminders, stats, charts and data management</p>
+    </div>
+    <a href="MedMinder_Add.html" class="btn-primary">➕ Add Reminder</a>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-grid">
+    <div class="sum-card"><div class="sum-num" id="h-total" style="color:var(--accent)">0</div><div class="sum-label">Total Reminders</div></div>
+    <div class="sum-card"><div class="sum-num" id="h-done"  style="color:var(--green)">0</div><div class="sum-label">Marked Taken</div></div>
+    <div class="sum-card"><div class="sum-num" id="h-rate"  style="color:var(--purple)">0%</div><div class="sum-label">Compliance Rate</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-title">📊 Status Breakdown</div>
+      <canvas id="status-chart" height="180"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">🏷️ By Category</div>
+      <div id="cat-bars"></div>
+    </div>
+  </div>
+
+  <!-- Export / Import -->
+  <div class="data-row">
+    <button class="btn-primary" onclick="exportData()">📤 Export JSON</button>
+    <label class="import-label" for="import-file">📥 Import JSON <input type="file" id="import-file" accept=".json" onchange="handleImport(event)"/></label>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input class="search-input" type="text" id="search" placeholder="Search by name, dose, notes…"/>
+    <span class="search-clear" id="search-clear" onclick="clearSearch()">✕</span>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar" id="hist-filters">
+    <span class="toolbar-label">Filter:</span>
+    <button class="chip active" data-filter="all">All</button>
+    <button class="chip" data-filter="done">✅ Taken</button>
+    <button class="chip" data-filter="pending">⏳ Pending</button>
+    <button class="chip" data-filter="overdue">🔴 Overdue</button>
+  </div>
+  <div class="toolbar" style="justify-content:space-between">
+    <div style="display:flex;gap:8px;align-items:center">
+      <span class="toolbar-label">Sort:</span>
+      <button class="sort-chip active" data-sort="time">Time</button>
+      <button class="sort-chip" data-sort="name">Name</button>
+      <button class="sort-chip" data-sort="cat">Category</button>
+    </div>
+    <div class="view-toggle">
+      <button class="vt-btn active" onclick="setView('card')" id="vt-card">⊞ Cards</button>
+      <button class="vt-btn" onclick="setView('table')" id="vt-table">≡ Table</button>
+    </div>
+  </div>
+
+  <div class="result-count">
+    <span id="result-count">—</span>
+    <span id="result-stats" style="color:var(--text2)"></span>
+  </div>
+
+  <!-- Skeletons -->
+  <div id="skeletons">
+    <div class="skeleton" style="margin-bottom:10px"></div>
+    <div class="skeleton sk-sm" style="margin-bottom:10px"></div>
+    <div class="skeleton"></div>
+  </div>
+
+  <div id="history-content" style="display:none"></div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone">
+    <div><div class="dz-text">⚠️ Danger Zone</div><div class="dz-sub">Permanently delete all reminders for this profile.</div></div>
+    <button class="btn-danger" onclick="clearAll()">🗑️ Delete All</button>
+  </div>
+</main>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script src="shared.js"></script>
+<script src="history.js"></script>
+</body>
+</html>
